@@ -32,7 +32,16 @@ while True:
         detections
     )
 
-    print(f"Tracks: {len(tracks)}")
+    print(
+        [
+            (
+                track.track_id,
+                track.state,
+                track.confirm_count
+            )
+            for track in tracks
+        ]
+    )
 
     num_detections = len(detections)
 

@@ -22,3 +22,22 @@ class Track:
         self.missed_frames = 0
 
         self.confirm_count = 1
+
+
+    def update_detection(
+        self,
+        detection
+        ):
+        
+        self.detection = detection
+
+        self.confirm_count += 1
+
+        self.missed_frames = 0
+
+        if (
+            self.confirm_count >= 3
+            and
+            self.state == Track.TENTATIVE
+        ):
+            self.state = Track.CONFIRMED

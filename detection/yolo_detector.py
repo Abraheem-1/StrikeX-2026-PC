@@ -19,6 +19,7 @@ class YoloDetector:
 
         results = self.model(
             image,
+            conf=0.50,
             device=self.device,
             verbose=False
         )
