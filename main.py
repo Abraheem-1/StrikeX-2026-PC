@@ -1,28 +1,28 @@
 import cv2
 
-from camera.camera_stream import CameraStream
+from camera.camera_manager import CameraManager
 
 
-camera0 = CameraStream(7000)
-camera1 = CameraStream(7001)
+camera_manager = CameraManager()
 
-camera0.start()
-camera1.start()
+camera_manager.start()
 
 
 while True:
 
-    frame0 = camera0.get_frame()
-    frame1 = camera1.get_frame()
+    frame0 = camera_manager.get_frame(0)
+    frame1 = camera_manager.get_frame(1)
 
     if frame0 is not None:
 
         cv2.putText(
             frame0,
-            f"FPS:{camera0.get_fps():.1f}  Drop:{camera0.get_dropped_frames()}  JPEG:{camera0.get_jpeg_size()}",
+            f"FPS:{camera_manager.get_fps(0):.1f} "
+            f"Drop:{camera_manager.get_dropped_frames(0)} "
+            f"JPEG:{camera_manager.get_jpeg_size(0)}",
             (10, 30),
             cv2.FONT_HERSHEY_SIMPLEX,
-            1,
+            0.7,
             (0, 255, 0),
             2
         )
@@ -33,10 +33,12 @@ while True:
 
         cv2.putText(
             frame1,
-            f"FPS:{camera1.get_fps():.1f}  Drop:{camera1.get_dropped_frames()}  JPEG:{camera1.get_jpeg_size()}",
+            f"FPS:{camera_manager.get_fps(1):.1f} "
+            f"Drop:{camera_manager.get_dropped_frames(1)} "
+            f"JPEG:{camera_manager.get_jpeg_size(1)}",
             (10, 30),
             cv2.FONT_HERSHEY_SIMPLEX,
-            1,
+            0.7,
             (0, 255, 0),
             2
         )
@@ -45,6 +47,5 @@ while True:
 
     if cv2.waitKey(1) == 27:
         break
-
 
 cv2.destroyAllWindows()
