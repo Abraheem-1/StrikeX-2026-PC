@@ -16,6 +16,7 @@ class CameraStream:
 
         self.frame_store = FrameStore()
         self.stats = StreamStats()
+        self.last_jpeg_size = 0
 
         self.thread = Thread(
             target=self._receiver_loop,
@@ -30,8 +31,11 @@ class CameraStream:
 
         while True:
 
-            jpeg_bytes = self.receiver.receive_frame()
-            self.stats.frame_received()
+            frame_id, jpeg_bytes = (
+                self.receiver.receive_frame()
+            )
+            self.last_jpeg_size = len(jpeg_bytes)
+            self.stats.frame_received(frame_id)
 
             image = cv2.imdecode(
                 np.frombuffer(
@@ -53,3 +57,9 @@ class CameraStream:
     def get_fps(self):
 
         return self.stats.get_fps()
+    
+    def get_dropped_frames(self):
+        return self.stats.get_dropped_frames()
+    
+    def get_jpeg_size(self):
+        return self.last_jpeg_size

@@ -19,7 +19,7 @@ while True:
 
         cv2.putText(
             frame0,
-            f"FPS: {camera0.get_fps():.1f}",
+            f"FPS:{camera0.get_fps():.1f}  Drop:{camera0.get_dropped_frames()}  JPEG:{camera0.get_jpeg_size()}",
             (10, 30),
             cv2.FONT_HERSHEY_SIMPLEX,
             1,
@@ -33,7 +33,7 @@ while True:
 
         cv2.putText(
             frame1,
-            f"FPS: {camera1.get_fps():.1f}",
+            f"FPS:{camera1.get_fps():.1f}  Drop:{camera1.get_dropped_frames()}  JPEG:{camera1.get_jpeg_size()}",
             (10, 30),
             cv2.FONT_HERSHEY_SIMPLEX,
             1,

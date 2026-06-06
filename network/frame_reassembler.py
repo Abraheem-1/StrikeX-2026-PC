@@ -31,6 +31,6 @@ class FrameReassembler:
 
             del self.frames[frame_id]
 
-            return jpeg_bytes
+            return frame_id, jpeg_bytes
 
         return None

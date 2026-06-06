@@ -37,12 +37,12 @@ class ImageReceiver:
                 header
             )
 
-            jpeg_bytes = self.reassembler.add_packet(
+            result = self.reassembler.add_packet(
                 frame_id,
                 packet_index,
                 packet_count,
                 payload
             )
 
-            if jpeg_bytes is not None:
-                return jpeg_bytes
+            if result is not None:
+                return result
