@@ -16,10 +16,35 @@ while True:
     frame1 = camera1.get_frame()
 
     if frame0 is not None:
+
+        cv2.putText(
+            frame0,
+            f"FPS: {camera0.get_fps():.1f}",
+            (10, 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 255, 0),
+            2
+        )
+
         cv2.imshow("Camera0", frame0)
 
     if frame1 is not None:
+
+        cv2.putText(
+            frame1,
+            f"FPS: {camera1.get_fps():.1f}",
+            (10, 30),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 255, 0),
+            2
+        )
+
         cv2.imshow("Camera1", frame1)
 
     if cv2.waitKey(1) == 27:
         break
+
+
+cv2.destroyAllWindows()

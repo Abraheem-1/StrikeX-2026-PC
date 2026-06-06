@@ -1,3 +1,4 @@
+from diagnostics.stream_stats import StreamStats
 from threading import Thread
 
 import cv2
@@ -14,6 +15,7 @@ class CameraStream:
         self.receiver = ImageReceiver(port)
 
         self.frame_store = FrameStore()
+        self.stats = StreamStats()
 
         self.thread = Thread(
             target=self._receiver_loop,
@@ -29,6 +31,7 @@ class CameraStream:
         while True:
 
             jpeg_bytes = self.receiver.receive_frame()
+            self.stats.frame_received()
 
             image = cv2.imdecode(
                 np.frombuffer(
@@ -46,3 +49,7 @@ class CameraStream:
     def get_frame(self):
 
         return self.frame_store.get_frame()
+    
+    def get_fps(self):
+
+        return self.stats.get_fps()
