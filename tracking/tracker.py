@@ -22,6 +22,8 @@ class Tracker:
 
             track.missed_frames += 1
 
+        assigned_tracks = set()
+
         # Process detections
         for detection in detections:
 
