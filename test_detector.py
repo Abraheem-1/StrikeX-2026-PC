@@ -13,7 +13,7 @@ camera_manager.start()
 
 detector = YoloDetector(
     "models/best.pt",
-    device="cpu"
+    device="cuda:0"
 )
 
 
