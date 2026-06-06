@@ -1,3 +1,4 @@
+from tracking.iou import calculate_iou
 from tracking.track import Track
 from tracking.utils import center_distance
 
@@ -32,7 +33,15 @@ class Tracker:
 
             for track in self.tracks:
 
+                if track.track_id in assigned_tracks:
+                    continue
+
                 distance = center_distance(
+                    track.detection,
+                    detection
+                )
+                
+                iou = calculate_iou(
                     track.detection,
                     detection
                 )
@@ -46,10 +55,22 @@ class Tracker:
                 best_track is not None
                 and
                 best_distance < self.distance_gate
+                and
+                iou > 0.30
             ):
 
+                print(
+                    f"Track {best_track.track_id}"
+                    f" Distance={best_distance:.1f}"
+                    f" IoU={iou:.2f}"
+                )
+                
                 best_track.update_detection(
                     detection
+                )
+
+                assigned_tracks.add(
+                    best_track.track_id
                 )
 
             else:
