@@ -3,9 +3,11 @@ import time
 
 from camera.camera_manager import CameraManager
 from detection.yolo_detector import YoloDetector
+from tracking.tracker import Tracker
 
 
 camera_manager = CameraManager()
+tracker = Tracker()
 
 camera_manager.start()
 
@@ -26,6 +28,12 @@ while True:
 
     detections = detector.detect(frame)
 
+    tracks = tracker.update(
+        detections
+    )
+
+    print(f"Tracks: {len(tracks)}")
+
     num_detections = len(detections)
 
     infer_ms = (time.time() - t0) * 1000
@@ -45,9 +53,11 @@ while True:
             2
         )
 
+        label = f"{det.class_name}"
+
         cv2.putText(
             frame,
-            det.class_name,
+            label,
             (int(det.x1), int(det.y1) - 10),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.5,

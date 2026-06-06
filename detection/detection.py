@@ -17,3 +17,11 @@ class Detection:
 
         self.x2 = x2
         self.y2 = y2
+
+    @property
+    def center_x(self):
+        return (self.x1 + self.x2) / 2
+
+    @property
+    def center_y(self):
+        return (self.y1 + self.y2) / 2
