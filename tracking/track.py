@@ -1,3 +1,6 @@
+from collections import deque
+
+
 class Track:
 
     TENTATIVE = 0
@@ -11,6 +14,12 @@ class Track:
         detection
     ):
 
+        self.distance_history = deque(
+            maxlen=10
+        )
+
+        self.smoothed_distance_mm = 0
+
         self.track_id = track_id
 
         self.detection = detection
@@ -23,12 +32,11 @@ class Track:
 
         self.confirm_count = 1
 
-
     def update_detection(
         self,
         detection
-        ):
-        
+    ):
+
         self.detection = detection
 
         self.confirm_count += 1
@@ -41,3 +49,25 @@ class Track:
             self.state == Track.TENTATIVE
         ):
             self.state = Track.CONFIRMED
+
+    def update_distance(
+        self,
+        distance_mm
+    ):
+
+        if distance_mm <= 0:
+            return
+
+        self.distance_history.append(
+            distance_mm
+        )
+
+        values = sorted(
+            self.distance_history
+        )
+
+        middle = len(values) // 2
+
+        self.smoothed_distance_mm = (
+            values[middle]
+        )

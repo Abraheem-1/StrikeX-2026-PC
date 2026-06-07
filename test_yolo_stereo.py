@@ -5,6 +5,7 @@ import numpy as np
 
 from camera.camera_manager import CameraManager
 from detection.yolo_detector import YoloDetector
+from targeting.target_manager import TargetManager
 from tracking.tracker import Tracker
 from stereo.stereo_processor import StereoProcessor
 
@@ -53,6 +54,8 @@ camera_manager.start()
 
 tracker = Tracker()
 
+target_manager = TargetManager()
+
 detector = YoloDetector(
     "models/best.pt",
     device="cuda:0"
@@ -88,7 +91,6 @@ print(
     processor.focal_length
 )
 
-
 while True:
 
     left = camera_manager.get_frame(0)
@@ -115,14 +117,20 @@ while True:
 
     h, w = depth_map.shape
 
-    cx = w // 2
-    cy = h // 2
+    center_x = w // 2
+    center_y = h // 2
 
-    center_depth = depth_map[cy, cx]
+    center_depth = depth_map[
+        center_y,
+        center_x
+    ]
 
     cv2.circle(
         rect_left,
-        (cx, cy),
+        (
+            center_x,
+            center_y
+        ),
         5,
         (0, 0, 255),
         -1
@@ -131,7 +139,10 @@ while True:
     cv2.putText(
         rect_left,
         f"{center_depth:.0f} mm",
-        (cx + 10, cy),
+        (
+            center_x + 10,
+            center_y
+        ),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.6,
         (0, 0, 255),
@@ -146,62 +157,37 @@ while True:
         detections
     )
 
+    targets = target_manager.build_targets(
+        tracks,
+        depth_map
+    )
+
     infer_ms = (
         time.time() - t0
     ) * 1000
 
-    for det in detections:
+    for target in targets:
 
-        cx = int(det.center_x)
-        cy = int(det.center_y)
-
-        distance_mm = 0
-
-        if (
-            depth_map is not None
-            and
-            0 <= cy < depth_map.shape[0]
-            and
-            0 <= cx < depth_map.shape[1]
-        ):
-
-            y1 = max(0, cy - 5)
-            y2 = min(
-                depth_map.shape[0],
-                cy + 5
-            )
-
-            x1 = max(0, cx - 5)
-            x2 = min(
-                depth_map.shape[1],
-                cx + 5
-            )
-
-            region = depth_map[
-                y1:y2,
-                x1:x2
-            ]
-
-            valid = region[
-                region > 0
-            ]
-
-            if len(valid) > 0:
-                distance_mm = int(
-                    np.median(valid)
-                )
+        det = target.detection
 
         cv2.rectangle(
             rect_left,
-            (int(det.x1), int(det.y1)),
-            (int(det.x2), int(det.y2)),
+            (
+                int(det.x1),
+                int(det.y1)
+            ),
+            (
+                int(det.x2),
+                int(det.y2)
+            ),
             (0, 255, 0),
             2
         )
 
         label = (
-            f"{det.class_name} "
-            f"{distance_mm} mm"
+            f"ID:{target.track_id} "
+            f"{target.class_name} "
+            f"{target.distance_mm:.0f}mm"
         )
 
         cv2.putText(
@@ -229,7 +215,7 @@ while True:
 
     cv2.putText(
         rect_left,
-        f"Detections: {len(detections)}",
+        f"Targets: {len(targets)}",
         (10, 60),
         cv2.FONT_HERSHEY_SIMPLEX,
         0.8,

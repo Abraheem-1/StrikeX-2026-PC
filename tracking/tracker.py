@@ -1,7 +1,7 @@
 from tracking.iou import calculate_iou
 from tracking.track import Track
 from tracking.utils import center_distance
-
+from collections import deque
 
 class Tracker:
 
@@ -30,6 +30,7 @@ class Tracker:
 
             best_track = None
             best_distance = float("inf")
+            best_iou = 0.0
 
             for track in self.tracks:
 
@@ -50,19 +51,20 @@ class Tracker:
 
                     best_distance = distance
                     best_track = track
+                    best_iou = iou
 
             if (
                 best_track is not None
                 and
                 best_distance < self.distance_gate
                 and
-                iou > 0.30
+                best_iou > 0.30
             ):
 
                 print(
                     f"Track {best_track.track_id}"
                     f" Distance={best_distance:.1f}"
-                    f" IoU={iou:.2f}"
+                    f" IoU={best_iou:.2f}"
                 )
                 
                 best_track.update_detection(
