@@ -8,6 +8,7 @@ from detection.yolo_detector import YoloDetector
 from targeting.target_manager import TargetManager
 from tracking.tracker import Tracker
 from stereo.stereo_processor import StereoProcessor
+from targeting.target_selector import TargetSelector
 
 
 def load_camera_yaml(path):
@@ -55,6 +56,8 @@ camera_manager.start()
 tracker = Tracker()
 
 target_manager = TargetManager()
+
+target_selector = TargetSelector()
 
 detector = YoloDetector(
     "models/best.pt",
@@ -162,6 +165,10 @@ while True:
         depth_map
     )
 
+    active_target = target_selector.select_target(
+        targets
+    )
+
     infer_ms = (
         time.time() - t0
     ) * 1000
@@ -169,6 +176,19 @@ while True:
     for target in targets:
 
         det = target.detection
+
+        is_active = (
+            active_target is not None
+            and
+            target.track_id == active_target.track_id
+        )
+
+        color = (
+            (0, 0, 255)
+            if is_active
+            else
+            (0, 255, 0)
+        )
 
         cv2.rectangle(
             rect_left,
@@ -180,9 +200,24 @@ while True:
                 int(det.x2),
                 int(det.y2)
             ),
-            (0, 255, 0),
+            color,
             2
         )
+
+        if is_active:
+
+            cv2.putText(
+                rect_left,
+                "ACTIVE TARGET",
+                (
+                    int(det.x1),
+                    int(det.y1) - 30
+                ),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.6,
+                (0, 0, 255),
+                2
+            )
 
         label = (
             f"ID:{target.track_id} "
@@ -199,7 +234,7 @@ while True:
             ),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.5,
-            (0, 255, 0),
+            color,
             2
         )
 
