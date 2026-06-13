@@ -9,6 +9,8 @@ from targeting.target_manager import TargetManager
 from tracking.tracker import Tracker
 from stereo.stereo_processor import StereoProcessor
 from targeting.target_selector import TargetSelector
+from control.turret_controller import TurretController
+from network.image_websocket_server import ImageWebSocketServer
 
 
 def load_camera_yaml(path):
@@ -58,6 +60,11 @@ tracker = Tracker()
 target_manager = TargetManager()
 
 target_selector = TargetSelector()
+
+turret_controller = TurretController()
+
+image_server = ImageWebSocketServer()
+image_server.start()
 
 detector = YoloDetector(
     "models/best.pt",
@@ -169,6 +176,20 @@ while True:
         targets
     )
 
+    error_x, error_y = (
+        turret_controller.calculate_error(
+            active_target,
+            rect_left.shape[1],
+            rect_left.shape[0]
+        )
+    )
+
+    turret_controller.send_to_pi(
+        active_target,
+        error_x,
+        error_y
+    )
+
     infer_ms = (
         time.time() - t0
     ) * 1000
@@ -257,6 +278,44 @@ while True:
         (0, 255, 0),
         2
     )
+
+    if error_x is not None:
+
+        cv2.putText(
+            rect_left,
+            f"Error X: {error_x:.0f}",
+            (10, 90),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 255, 255),
+            2
+        )
+
+        cv2.putText(
+            rect_left,
+            f"Error Y: {error_y:.0f}",
+            (10, 120),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (0, 255, 255),
+            2
+        )
+
+        cv2.line(
+            rect_left,
+            (
+                rect_left.shape[1] // 2,
+                rect_left.shape[0] // 2
+            ),
+            (
+                int(active_target.center_x),
+                int(active_target.center_y)
+            ),
+            (255, 0, 0),
+            2
+        )
+
+    image_server.send_frame(rect_left)
 
     cv2.imshow(
         "YOLO + Stereo",
