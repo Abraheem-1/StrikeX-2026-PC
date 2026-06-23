@@ -11,6 +11,7 @@ from stereo.stereo_processor import StereoProcessor
 from targeting.target_selector import TargetSelector
 from control.turret_controller import TurretController
 from network.image_websocket_server import ImageWebSocketServer
+from live_debug_plot import LiveDebugPlot
 
 
 def load_camera_yaml(path):
@@ -62,6 +63,8 @@ target_manager = TargetManager()
 target_selector = TargetSelector()
 
 turret_controller = TurretController()
+
+debug_plot = LiveDebugPlot()
 
 image_server = ImageWebSocketServer()
 image_server.start()
@@ -189,6 +192,9 @@ while True:
         error_x,
         error_y
     )
+
+    debug_plot.record_error(error_x, error_y)
+    debug_plot.update()
 
     infer_ms = (
         time.time() - t0
