@@ -11,7 +11,7 @@ from stereo.stereo_processor import StereoProcessor
 from targeting.target_selector import TargetSelector
 from control.turret_controller import TurretController
 from network.image_websocket_server import ImageWebSocketServer
-from live_debug_plot import LiveDebugPlot
+#from live_debug_plot import LiveDebugPlot
 
 
 def load_camera_yaml(path):
@@ -35,7 +35,7 @@ tracker = Tracker()
 target_manager = TargetManager()
 target_selector = TargetSelector()
 turret_controller = TurretController()
-debug_plot = LiveDebugPlot()
+#debug_plot = LiveDebugPlot()
 
 image_server = ImageWebSocketServer()
 image_server.start()
@@ -151,10 +151,10 @@ while True:
     cv2.putText(rect_left, f"{center_depth:.0f} mm",
                 (cdx + 10, cdy), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
 
-    # slow plot, throttled
-    debug_plot.record_error(error_x, error_y)
-    if frame_count % PLOT_EVERY == 0:
-        debug_plot.update()
+    # slow plot, throttled  debug plot is SLOW — record every frame, redraw only occasionally
+    # debug_plot.record_error(error_x, error_y)
+    # if frame_count % PLOT_EVERY == 0:
+    #     debug_plot.update()
     t_plot = time.time()
 
     # ===== TIMING REPORT — SEND@ is now your real pointing latency =====
